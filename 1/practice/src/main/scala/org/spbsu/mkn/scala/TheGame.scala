@@ -19,11 +19,11 @@ object TheGame {
   }
 
   def cows(secret: String, userInput: String): Int =
-    (secret.toList zip userInput.toList).filter(pair => pair._1 != pair._2).
-      map(pair => pair._2).count(x => secret.toList.contains(x))
+    (secret zip userInput).filter(pair => pair._1 != pair._2).
+      map(pair => pair._2).count(x => secret.contains(x))
 
   def bulls(secret: String, userInput: String): Int =
-    (secret.toList zip userInput.toList).count(pair => pair._1 == pair._2)
+    (secret zip userInput).count(pair => pair._1 == pair._2)
 
   def validate(secret: String, userInput: String, numTries: Int = 1): GuessResult = {
     if (userInput.length != secret.length)
