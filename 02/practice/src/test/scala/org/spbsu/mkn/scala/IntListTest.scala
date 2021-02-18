@@ -45,5 +45,4 @@ class IntListTest extends AnyFunSuite {
     assert(sum(fromSeq(Seq(1,2,3))) == 6)
     assert(sum(fromSeq(Seq(1))) == 1)
   }
-
 }
