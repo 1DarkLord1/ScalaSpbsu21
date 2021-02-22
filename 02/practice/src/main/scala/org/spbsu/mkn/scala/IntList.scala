@@ -5,56 +5,59 @@ import org.spbsu.mkn.scala.IntList._
 import scala.annotation.tailrec
 
 sealed trait IntList {
-  def head: Int =
-    this match {
-      case IntCons(x, _) => x
-      case IntNil        => IntList.undef
+  def head: Int
+  def tail: IntList
+  def drop(n: Int): IntList
+  def take(n: Int): IntList
+  def map(f: Int => Int): IntList
+  def ::(elem: Int): IntList = IntCons(elem, this)
+}
+
+case object IntNil extends IntList {
+  override def head: Int = undef
+  override def tail: IntList = undef
+  override def drop(n: Int): IntList =
+    if (n == 0) {
+      IntNil
+    } else {
+      undef
     }
-  def tail: IntList =
-    this match {
-      case IntCons(_, xs) => xs
-      case IntNil         => IntList.undef
+  override def take(n: Int): IntList =
+    if (n == 0) {
+      IntNil
+    } else {
+      undef
     }
-  def drop(n: Int): IntList =
+
+  override def map(f: Int => Int): IntList = IntNil
+}
+
+case class IntCons(elem: Int, list: IntList) extends IntList {
+  override def head: Int = elem
+  override def tail: IntList = list
+  override def drop(n: Int): IntList =
     if (n == 0) {
       this
     } else if (n > 0) {
-      this match {
-        case IntCons(_, xs) => xs.drop(n - 1)
-        case IntNil         => IntList.undef
-      }
+        list.drop(n - 1)
     } else {
-      IntList.undef
+      undef
     }
-  def take(n: Int): IntList =
+  override def take(n: Int): IntList =
     if (n == 0) {
       IntNil
     } else if (n > 0) {
-      this match {
-        case IntCons(x, xs) => IntCons(x, xs.take(n - 1))
-        case IntNil         => IntList.undef
-      }
+      IntCons(elem, list.take(n - 1))
     } else {
-      IntList.undef
+      undef
     }
 
-  def map(f: Int => Int): IntList =
-    this match {
-      case IntCons(x, xs) => IntCons(f(x), xs.map(f))
-      case IntNil         => IntNil
-    }
-  def ::(elem: Int): IntList = IntCons(elem, this)
+  override def map(f: Int => Int): IntList = IntCons(f(elem), list.map(f))
 }
-case object IntNil extends IntList
-case class IntCons(elem: Int, list: IntList) extends IntList
 
 object IntList {
   def undef: Nothing = throw new UnsupportedOperationException("operation is undefined")
-  def fromSeq(seq: Seq[Int]): IntList =
-    seq match {
-      case Seq() => IntNil
-      case _     => seq.head :: fromSeq(seq.tail)
-    }
+  def fromSeq(seq: Seq[Int]): IntList = seq.foldRight(IntNil.asInstanceOf[IntList])((x, xs) => x :: xs)
   def sum(intList: IntList): Int      =
     intList match {
       case IntCons(_, _) => foldLeft(intList)((acc, x) => acc + x, 0)
